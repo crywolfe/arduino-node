@@ -1,0 +1,14 @@
+{
+  "name": "lightmynode",
+  "version": "0.0.1",
+  "description": "arduino playground with browser",
+  "repository": {
+    "type": "git",
+    "url": "git@heroku.com:secret-thicket-6210.git"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "author": "Gerry",
+  "license": "MIT"
+}
