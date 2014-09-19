@@ -8,4 +8,4 @@ var handle = {}
 handle["/"] = requestHandlers.sendInterface;
 handle["/index"] = requestHandlers.sendInterface;
 
-server.start(router.route,handle,debug);
+server.start(router.route, handle, debug);

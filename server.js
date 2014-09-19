@@ -1,28 +1,24 @@
-var fs = require('fs'),
-		http = require('http'),
+var http = require('http'),
 		socketio = require('socket.io'),
 		url = require('url'),
 		SerialPort = require('serialport').SerialPort;
-		// request = require('request'),
-		// five = require("johnny-five"),
-		// board = new five.Board();
 
 var socketServer;
 var serialPort;
 var portName = '/dev/tty.usbmodem1411';
 var sendData = "";
 
-// handle contains locations to browse to (vote and poll); pathnames.
-function startServer(route,handle,debug) {
+// handle contains locations to browse to pathnames.
+function startServer(route, handle, debug) {
 
 	// on request event
-	function onRequest(request, response) {
-	  // parse the requested url into pathname. pathname will be compared
-	  // in route.js to handle (var content), if it matches the a page will
-	  // come up. Otherwise a 404 will be given.
+	function onRequest(req, res) {
+	  // Parse the requested url into pathname. pathname will be compared
+	  // in route.js to handle (var content), if it matches the page will
+	  // come up. Otherwise 404.
 	  var pathname = url.parse(request.url).pathname;
 	  console.log("Request for " + pathname + " received");
-	  var content = route(handle,pathname,response,request,debug);
+	  var content = route(handle, pathname, res, req, debug);
 	}
 
 	var httpServer = http.createServer(onRequest).listen(3001, function() {
@@ -30,10 +26,10 @@ function startServer(route,handle,debug) {
 		console.log("Server is up");
 	});
 	serialListener(debug);
-	initSocketIO(httpServer,debug);
+	initSocketIO(httpServer, debug);
 }
 
-function initSocketIO(httpServer,debug) {
+function initSocketIO(httpServer, debug) {
 	socketServer = socketio.listen(httpServer);
 	if (debug == false) {
 		socketServer.set('log level', 1); // socket IO debug off
@@ -66,17 +62,18 @@ function serialListener(debug) {
  		flowControl: false
 	});
 
-  serialPort.on("open", function () {
+  serialPort.on("open", function() {
 	  console.log('open serial communication');
-	        // Listens to incoming data
+
+	  // Listens to incoming data
     serialPort.on('data', function(data) {
     	receivedData += data.toString();
       if (receivedData .indexOf('E') >= 0 && receivedData .indexOf('B') >= 0) {
       	sendData = receivedData .substring(receivedData .indexOf('B') + 1, receivedData .indexOf('E'));
       	receivedData = '';
 			}
-     // send the incoming data to browser with websockets.
-		socketServer.emit('update', sendData);
+			// send the incoming data to browser with websockets.
+			socketServer.emit('update', sendData);
 	  });
 	});
 }
